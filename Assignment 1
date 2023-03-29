@@ -1,0 +1,220 @@
+//This is what was given 
+// added comments to better understand 
+//prof office is 4n 206 
+
+#include <iostream>
+using namespace std;
+
+
+void printArray(int* begin, int* end)
+{
+    for ( int* p = begin; p != end; p++ )
+    {
+        cout << *p << " ";
+    }    
+}
+
+
+// xxxxxxxxx      insertionSort    xxxxxxxxxxxx
+int insertionSort(int arr[], int n) 
+{
+    long long step = 0;
+    for ( int i = 1; i < n; i++ )
+    {
+        /*
+        printArray(arr, arr+i);
+        cout << "| ";
+        printArray(arr+i, arr+n);
+        cout << endl;
+        */
+        
+        int key = arr[i];
+        int j = i-1;
+
+        while ( j >= 0 && arr[j] > key )
+        {
+            arr[j+1] = arr[j];
+            j--;
+            step++;
+        }
+        arr[j+1] = key;       
+    }
+    return step;
+}
+
+
+// xxxxxxxxx      merge    xxxxxxxxxxxx
+int merge(int arr[], int left[], int leftSize, int right[], int rightSize) {
+    int i = 0, j = 0, k = 0, count=0;
+
+    // Compare elements from both subarrays and copy the smallest to the merged array
+    while (i < leftSize && j < rightSize) {
+        if (left[i] <= right[j]) {
+            arr[k] = left[i];
+            i++;
+        } else {
+            arr[k] = right[j];
+            j++;
+        }
+        k++;
+        count++;
+    }
+
+    // Copy the remaining elements of left[] if any
+    while (i < leftSize) {
+        arr[k] = left[i];
+        i++;
+        k++;
+        count++;
+    }
+    // Copy the remaining elements of right[] if any
+    while (j < rightSize) {
+        arr[k] = right[j];
+        j++;
+        k++;
+        count++;
+    }
+    return count;
+}
+
+
+// xxxxxxxxx      mergeSort    xxxxxxxxxxxx
+int mergeSort(int arr[], int n) {
+    if (n <= 1) {
+        return 0;
+    }
+    int mid = n / 2;
+    int left[mid], right[n - mid];
+    for (int i = 0; i < mid; i++) {
+        left[i] = arr[i];
+    }
+    for (int j = mid; j < n; j++) {
+        right[j - mid] = arr[j];
+    }
+
+    int leftSteps=0;
+    leftSteps+= mergeSort(left, mid);
+    int rightSteps =0;
+    rightSteps+=mergeSort(right, n - mid);
+    int mergeSteps=merge(arr, left, mid, right, n - mid);
+
+    int steps = leftSteps + rightSteps+mergeSteps;
+
+    int i = 0, j = mid;
+    while (i < mid && j < n) {
+        if (arr[i] > arr[j]) {
+            steps += mid - i;
+            j++;
+        } else {
+            i++;
+        }
+    }
+    return steps;
+}
+
+
+
+
+// xxxxxxxxx      partion    xxxxxxxxxxxx
+int partition(int arr[], int low, int high) 
+{ 
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i+1], arr[high]);
+    return i+1;
+}
+
+
+// xxxxxxxxx     quickSort    xxxxxxxxxxxx
+
+int quickSort(int arr[], int low, int high) 
+{ 
+    long long step = 0;
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        step += pi;
+        step += quickSort(arr, low, pi - 1);
+        step += quickSort(arr, pi + 1, high);
+    }
+    return step;
+}
+
+int quickSort(int arr[], int n) {
+    return quickSort(arr, 0, n-1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// xxxxxxxxx     run    xxxxxxxxxxxx
+
+void run( int size, int times )
+{
+    clock_t begin_time = clock();
+    
+    long long steps = 0;
+    
+    for ( int t = 0; t < times; t++ )
+    {
+        int *arr = new int[size];
+    
+        for ( int i = 0; i < size; i++ )
+        {
+            arr[i] = rand() % (size*10);  
+            //cout<<"test"<<endl;
+           //this make the array
+
+        }
+
+///// Chnage here depending ////
+//////which sort you gonna use /////
+       
+       
+    //steps += insertionSort(arr, size);    //given  
+    //steps += mergeSort(arr, size);        //worked on with tutor
+    steps += quickSort(arr, size);        //worked on with tutor
+
+    delete[] arr;
+    }
+
+    clock_t end_time = clock();
+    cout << size << "   ";      //this diisplays the size 
+    double nswaps = 1. * steps / times;
+    printf("     %.2f", nswaps);    //this diisplays the numbers of swap
+
+    
+    cout << "         "<< ( 1. * (end_time - begin_time) / CLOCKS_PER_SEC) << endl; //this diisplays the seconds 
+}
+
+
+
+
+
+
+
+int main()
+{
+    cout << "Size  "<<"     Number of swaps    " << "seconds"<< endl;  
+    
+    //size * num of swap  = n log(n) for mergeSort 
+    //
+
+    for ( int i = 1000; i < 10000; i += 1000 ) 
+        run(i, 500);
+    return 0;
+}
